@@ -1,5 +1,9 @@
 #  New Setup (fast)
 
+$ENV:STARSHIP_CONFIG = "C:\Users\deepa\.config\starship.toml"
+$ENV:STARSHIP_CACHE = "$HOME\AppData\Local\Temp"
+
+
 function Run-Step([string] $Description, [ScriptBlock]$script)
 {
   Write-Host  -NoNewline "Loading " $Description.PadRight(20)
@@ -13,26 +17,16 @@ Write-Host "Loading PowerShell $($PSVersionTable.PSVersion)..." -ForegroundColor
 Write-Host
 
 # Takes about 760ms to load, setting up multithreaded job for this task(Importing Terminal Icons)
-$vsshell1 = Start-ThreadJob {
-  Import-Module -Name Terminal-Icons
-}
 
 # Importing Fuzzy Finder options
-# $vsshell2 = Start-ThreadJob {
+
+# $vsshell3 = Start-ThreadJob {
 #   Set-PsFzfOption -PSReadlineChordProvider 'Ctrl+f' -PSReadlineChordReverseHistory 'Ctrl+r'
 # }
 
-Run-Step "Importing z" {
-  Import-Module z
-}
-
-Run-Step "Importing Prompt" {
-  oh-my-posh init pwsh --config 'C:\Users\deepa\AppData\Local\Programs\oh-my-posh\themes\tokyonight_storm.omp.json' | Invoke-Expression
-}
-
-Run-Step "Choco Issues" {
-  function clist { choco list }
-}
+# Run-Step "Choco Issues" {
+#   function clist { choco list }
+# }
 
 Run-Step "PSReadLine setup" {
   Set-PSReadLineOption -PredictionSource History
@@ -50,10 +44,28 @@ Run-Step "PSReadLine setup" {
   Set-PSReadLineOption -PredictionSource History
 }
 
+Run-Step "Importing z" {
+    Import-Module z
+}
+
 Run-Step "Fuzzy Finder setup" {
- Set-PsFzfOption -PSReadlineChordProvider 'Ctrl+f' -PSReadlineChordReverseHistory 'Ctrl+r'
+  Set-PsFzfOption -PSReadlineChordProvider 'Ctrl+f' -PSReadlineChordReverseHistory 'Ctrl+r'
 }
 
 Run-Step "Terminal Icons" {
-  Receive-Job $vsshell1 -Wait -AutoRemoveJob
+  Import-Module -Name Terminal-Icons
+}
+
+Run-Step "Starship setup" {
+  Invoke-Expression (&starship init powershell)
+}
+
+# Import the Chocolatey Profile that contains the necessary code to enable
+# tab-completions to function for `choco`.
+# Be aware that if you are missing these lines from your profile, tab completion
+# for `choco` will not function.
+# See https://ch0.co/tab-completion for details.
+$ChocolateyProfile = "$env:ChocolateyInstall\helpers\chocolateyProfile.psm1"
+if (Test-Path($ChocolateyProfile)) {
+  Import-Module "$ChocolateyProfile"
 }

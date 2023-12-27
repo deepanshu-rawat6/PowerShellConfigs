@@ -1,6 +1,6 @@
 # ===== WINFETCH CONFIGURATION =====
 
-$image = "C:\Users\deepa\bg.png"
+$image = "C:\Users\deepa\.config\duck.png"
 $noimage = $false
 
 # Display image using ASCII characters
